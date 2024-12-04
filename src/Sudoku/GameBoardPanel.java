@@ -34,15 +34,8 @@ public class GameBoardPanel extends JPanel {
             }
         }
 
-        // Add Reset button
-        JButton resetButton = new JButton("Reset Game");
-        resetButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                resetGame();  // Reset the game
-            }
-        });
-        super.add(resetButton);  // Add reset button to panel
+
+
 
         super.setPreferredSize(new Dimension(BOARD_WIDTH, BOARD_HEIGHT));
     }
