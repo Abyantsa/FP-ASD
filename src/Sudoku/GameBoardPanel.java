@@ -50,15 +50,7 @@ public class GameBoardPanel extends JPanel {
         }
     }
 
-    // Reset the game
-    public void resetGame() {
-        puzzle.newPuzzle(2);
-        for (int row = 0; row < SudokuConstants.GRID_SIZE; ++row) {
-            for (int col = 0; col < SudokuConstants.GRID_SIZE; ++col) {
-                cells[row][col].newGame(puzzle.numbers[row][col], puzzle.isGiven[row][col]);
-            }
-        }
-    }
+
 
     // Check if the puzzle is solved
     public boolean isSolved() {
