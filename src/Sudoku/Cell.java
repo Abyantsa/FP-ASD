@@ -50,32 +50,42 @@ public class Cell extends JTextField {
      */
     public void newGame(int number, boolean isGiven) {
         this.number = number;
-        status = isGiven ? CellStatus.GIVEN : CellStatus.TO_GUESS;
-        paint();    // paint itself
+        if (number == 0) {
+            setText(""); // Kosongkan sel jika angka adalah 0
+            setEditable(true); // Buat sel dapat diisi pemain
+            status = CellStatus.TO_GUESS; // Tandai status sebagai TO_GUESS
+        } else {
+            setText(String.valueOf(number)); // Tampilkan angka jika diberikan
+            setEditable(false); // Kunci sel jika angka sudah diberikan
+            status = CellStatus.GIVEN; // Tandai status sebagai GIVEN
+        }
+        paint();
     }
 
-    /**
-     * This Cell (JTextField) paints itself based on its status
-     */
+
+
+
     public void paint() {
         if (status == CellStatus.GIVEN) {
-            super.setText(number + "");
-            super.setEditable(false);  // Tidak bisa diedit
-            super.setBackground(BG_GIVEN);  // Warna latar belakang
-            super.setForeground(FG_GIVEN);  // Warna teks
-            super.setFont(FONT_NUMBERS);  // Font untuk angka
-            super.setHorizontalAlignment(JTextField.CENTER);  // Penyusunan teks di tengah
+            super.setText(number == 0 ? "" : String.valueOf(number)); // Tampilkan kosong jika 0
+            super.setEditable(false); // Tidak dapat diedit
+            super.setBackground(BG_GIVEN); // Warna latar belakang
+            super.setForeground(FG_GIVEN); // Warna teks
+            super.setFont(FONT_NUMBERS);
+            super.setHorizontalAlignment(JTextField.CENTER); // Penyusunan teks di tengah
         } else if (status == CellStatus.TO_GUESS) {
-            super.setText("");
-            super.setEditable(true);  // Bisa diedit
-            super.setBackground(BG_TO_GUESS);  // Warna latar belakang
-            super.setForeground(FG_NOT_GIVEN);  // Warna teks
-            super.setFont(FONT_NUMBERS);  // Font untuk angka
-            super.setHorizontalAlignment(JTextField.CENTER);  // Penyusunan teks di tengah
+            super.setText(""); // Sel kosong tidak menampilkan angka
+            super.setEditable(true); // Bisa diedit
+            super.setBackground(BG_TO_GUESS); // Warna latar belakang untuk sel kosong
+            super.setForeground(FG_NOT_GIVEN); // Warna teks
+            super.setFont(FONT_NUMBERS);
+            super.setHorizontalAlignment(JTextField.CENTER); // Penyusunan teks di tengah
         } else if (status == CellStatus.CORRECT_GUESS) {
-            super.setBackground(BG_CORRECT_GUESS);  // Warna untuk tebakan benar
+            super.setBackground(BG_CORRECT_GUESS); // Warna untuk tebakan benar
         } else if (status == CellStatus.WRONG_GUESS) {
-            super.setBackground(BG_WRONG_GUESS);  // Warna untuk tebakan salah
+            super.setBackground(BG_WRONG_GUESS); // Warna untuk tebakan salah
         }
     }
+
+
 }
