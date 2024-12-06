@@ -2,25 +2,31 @@ package Sudoku;
 
 import java.awt.*;
 import javax.swing.*;
+import javax.sound.sampled.*;
+import java.io.File;
 
 public class WelcomeScreen extends JFrame {
     private static final long serialVersionUID = 1L;
-    private float volume = 1.0f;
     private Color primaryColor = new Color(41, 128, 185);
     private Color secondaryColor = new Color(52, 152, 219);
     private Color backgroundColor = new Color(236, 240, 241);
     private Color textColor = new Color(44, 62, 80);
+    private Clip backgroundClip;
+    private JSlider volumeSlider;
 
     public WelcomeScreen() {
         setTitle("Sudoku Game");
         setSize(500, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
+
+        // Play background music
+        playBackgroundMusic("src\\Sudoku\\backsound.wav");
+
         // Set background color
         getContentPane().setBackground(backgroundColor);
         setLayout(new BorderLayout(20, 20));
 
-        // Panel untuk judul dengan gradient background
+        // Panel for title with gradient background
         JPanel titlePanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -32,13 +38,13 @@ public class WelcomeScreen extends JFrame {
             }
         };
         titlePanel.setPreferredSize(new Dimension(500, 150));
-        
+
         JLabel lblWelcome = new JLabel("SUDOKU", JLabel.CENTER);
         lblWelcome.setFont(new Font("Montserrat", Font.BOLD, 48));
         lblWelcome.setForeground(Color.WHITE);
         titlePanel.add(lblWelcome);
-        
-        // Panel untuk menu utama
+
+        // Main menu panel
         JPanel menuPanel = new JPanel();
         menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
         menuPanel.setBackground(backgroundColor);
@@ -48,7 +54,7 @@ public class WelcomeScreen extends JFrame {
         JButton btnOptions = createStyledButton("Options", new ImageIcon("path/to/settings-icon.png"));
         JButton btnExit = createStyledButton("Exit", new ImageIcon("path/to/exit-icon.png"));
 
-        // Menambahkan spacing antara button
+        // Add spacing between buttons
         addButtonToPanel(menuPanel, btnPlayGame);
         menuPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         addButtonToPanel(menuPanel, btnOptions);
@@ -67,6 +73,57 @@ public class WelcomeScreen extends JFrame {
         setVisible(true);
     }
 
+    private void playBackgroundMusic(String filePath) {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(filePath));
+            backgroundClip = AudioSystem.getClip();
+            backgroundClip.open(audioInputStream);
+
+            // Use VolumeManager to manage volume
+            VolumeManager.getInstance().setCurrentClip(backgroundClip);
+
+            backgroundClip.loop(Clip.LOOP_CONTINUOUSLY);
+            backgroundClip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showOptions() {
+        JDialog optionsDialog = new JDialog(this, "Options", true);
+        optionsDialog.setLayout(new BorderLayout(10, 10));
+        optionsDialog.setSize(400, 200);
+        optionsDialog.getContentPane().setBackground(backgroundColor);
+
+        JPanel volumePanel = new JPanel(new BorderLayout(10, 10));
+        volumePanel.setBackground(backgroundColor);
+        volumePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JLabel volumeLabel = new JLabel("Volume Control");
+        volumeLabel.setFont(new Font("Montserrat", Font.BOLD, 16));
+        volumeLabel.setForeground(textColor);
+
+        volumeSlider = new JSlider(0, 100, (int)(VolumeManager.getInstance().getVolume() * 100));
+        volumeSlider.setBackground(backgroundColor);
+        volumeSlider.setForeground(primaryColor);
+
+        volumeSlider.addChangeListener(e -> {
+            float newVolume = volumeSlider.getValue() / 100.0f;
+            VolumeManager.getInstance().setVolume(newVolume);
+        });
+
+        JButton btnClose = createStyledButton("Save", null);
+        btnClose.addActionListener(e -> optionsDialog.dispose());
+
+        volumePanel.add(volumeLabel, BorderLayout.NORTH);
+        volumePanel.add(volumeSlider, BorderLayout.CENTER);
+        volumePanel.add(btnClose, BorderLayout.SOUTH);
+
+        optionsDialog.add(volumePanel);
+        optionsDialog.setLocationRelativeTo(this);
+        optionsDialog.setVisible(true);
+    }
+
     private JButton createStyledButton(String text, ImageIcon icon) {
         JButton button = new JButton(text);
         button.setFont(new Font("Montserrat", Font.BOLD, 18));
@@ -78,7 +135,7 @@ public class WelcomeScreen extends JFrame {
         button.setBorderPainted(false);
         button.setContentAreaFilled(false);
         button.setOpaque(true);
-        
+
         // Hover effect
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -139,39 +196,18 @@ public class WelcomeScreen extends JFrame {
         difficultyDialog.setVisible(true);
     }
 
-    private void showOptions() {
-        JDialog optionsDialog = new JDialog(this, "Options", true);
-        optionsDialog.setLayout(new BorderLayout(10, 10));
-        optionsDialog.setSize(400, 200);
-        optionsDialog.getContentPane().setBackground(backgroundColor);
-
-        JPanel volumePanel = new JPanel(new BorderLayout(10, 10));
-        volumePanel.setBackground(backgroundColor);
-        volumePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-        JLabel volumeLabel = new JLabel("Volume Control");
-        volumeLabel.setFont(new Font("Montserrat", Font.BOLD, 16));
-        volumeLabel.setForeground(textColor);
-
-        JSlider volumeSlider = new JSlider(0, 100, (int)(volume * 100));
-        volumeSlider.setBackground(backgroundColor);
-        volumeSlider.setForeground(primaryColor);
-
-        JButton btnClose = createStyledButton("Save", null);
-        btnClose.addActionListener(e -> optionsDialog.dispose());
-
-        volumePanel.add(volumeLabel, BorderLayout.NORTH);
-        volumePanel.add(volumeSlider, BorderLayout.CENTER);
-        volumePanel.add(btnClose, BorderLayout.SOUTH);
-
-        optionsDialog.add(volumePanel);
-        optionsDialog.setLocationRelativeTo(this);
-        optionsDialog.setVisible(true);
-    }
-
     private void startGame(int difficulty) {
         new Sudoku(difficulty);
         dispose();
+    }
+
+    @Override
+    public void dispose() {
+        if (backgroundClip != null && backgroundClip.isRunning()) {
+            backgroundClip.stop();
+            backgroundClip.close();
+        }
+        super.dispose();
     }
 
     public static void main(String[] args) {

@@ -2,17 +2,22 @@ package Sudoku;
 
 import java.awt.*;
 import javax.swing.*;
+import javax.sound.sampled.*;
+import java.io.File;
 
 public class Sudoku extends JFrame {
     private static final long serialVersionUID = 1L;
-    private float volume = 1.0f;
     private GameBoardPanel board = new GameBoardPanel();
     private int currentDifficulty;
+    private Clip backgroundClip;
 
     public Sudoku(int difficulty) {
         this.currentDifficulty = difficulty;
         Container cp = getContentPane();
         cp.setLayout(new BorderLayout());
+
+        // Play background music
+        playBackgroundMusic("src\\Sudoku\\backsound.wav");
 
         // Create Menu Bar
         JMenuBar menuBar = new JMenuBar();
@@ -24,7 +29,7 @@ public class Sudoku extends JFrame {
 
         JMenuItem newGameItem = new JMenuItem("New Game");
         JMenuItem resetGameItem = new JMenuItem("Reset Game");
-        JMenuItem exitItem = new JMenuItem("Exit");
+        JMenuItem exitItem = new JMenuItem("Exit to Main Menu");
 
         gameMenu.add(newGameItem);
         gameMenu.add(resetGameItem);
@@ -48,7 +53,10 @@ public class Sudoku extends JFrame {
         // Add Action Listeners
         newGameItem.addActionListener(e -> showDifficultySelection());
         resetGameItem.addActionListener(e -> resetGame());
-        exitItem.addActionListener(e -> System.exit(0));
+        exitItem.addActionListener(e -> {
+            dispose(); // Close the current Sudoku window
+            SwingUtilities.invokeLater(() -> new WelcomeScreen()); // Open the WelcomeScreen
+        });
         volumeControl.addActionListener(e -> showVolumeControl());
         aboutItem.addActionListener(e -> showAboutDialog());
 
@@ -60,6 +68,50 @@ public class Sudoku extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Sudoku");
         setVisible(true);
+    }
+
+    private void playBackgroundMusic(String filePath) {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(filePath));
+            backgroundClip = AudioSystem.getClip();
+            backgroundClip.open(audioInputStream);
+
+            // Use VolumeManager to manage volume
+            VolumeManager.getInstance().setCurrentClip(backgroundClip);
+
+            backgroundClip.loop(Clip.LOOP_CONTINUOUSLY);
+            backgroundClip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showVolumeControl() {
+        JDialog volumeDialog = new JDialog(this, "Volume Control", true);
+        volumeDialog.setLayout(new BorderLayout(10, 10));
+        volumeDialog.setSize(300, 150);
+
+        JPanel volumePanel = new JPanel(new BorderLayout(10, 10));
+        volumePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JLabel volumeLabel = new JLabel("Volume: ");
+        JSlider volumeSlider = new JSlider(0, 100, (int)(VolumeManager.getInstance().getVolume() * 100));
+
+        volumeSlider.addChangeListener(e -> {
+            float newVolume = volumeSlider.getValue() / 100f;
+            VolumeManager.getInstance().setVolume(newVolume);
+        });
+
+        JButton closeButton = new JButton("Close");
+        closeButton.addActionListener(e -> volumeDialog.dispose());
+
+        volumePanel.add(volumeLabel, BorderLayout.NORTH);
+        volumePanel.add(volumeSlider, BorderLayout.CENTER);
+        volumePanel.add(closeButton, BorderLayout.SOUTH);
+
+        volumeDialog.add(volumePanel);
+        volumeDialog.setLocationRelativeTo(this);
+        volumeDialog.setVisible(true);
     }
 
     private void resetGame() {
@@ -133,34 +185,6 @@ public class Sudoku extends JFrame {
         difficultyDialog.setVisible(true);
     }
 
-    private void showVolumeControl() {
-        JDialog volumeDialog = new JDialog(this, "Volume Control", true);
-        volumeDialog.setLayout(new BorderLayout(10, 10));
-        volumeDialog.setSize(300, 150);
-
-        JPanel volumePanel = new JPanel(new BorderLayout(10, 10));
-        volumePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        JLabel volumeLabel = new JLabel("Volume: ");
-        JSlider volumeSlider = new JSlider(0, 100, (int)(volume * 100));
-
-        volumeSlider.addChangeListener(e -> {
-            volume = volumeSlider.getValue() / 100f;
-            // Implement volume control logic here
-        });
-
-        JButton closeButton = new JButton("Close");
-        closeButton.addActionListener(e -> volumeDialog.dispose());
-
-        volumePanel.add(volumeLabel, BorderLayout.NORTH);
-        volumePanel.add(volumeSlider, BorderLayout.CENTER);
-        volumePanel.add(closeButton, BorderLayout.SOUTH);
-
-        volumeDialog.add(volumePanel);
-        volumeDialog.setLocationRelativeTo(this);
-        volumeDialog.setVisible(true);
-    }
-
     private void startNewGame(int difficulty) {
         int cellsToGuess;
         switch (difficulty) {
@@ -170,6 +194,15 @@ public class Sudoku extends JFrame {
             default: cellsToGuess = SudokuConstants.EASY;
         }
         board.newGame(cellsToGuess);
+    }
+
+    @Override
+    public void dispose() {
+        if (backgroundClip != null && backgroundClip.isRunning()) {
+            backgroundClip.stop();
+            backgroundClip.close();
+        }
+        super.dispose();
     }
 
     public static void main(String[] args) {

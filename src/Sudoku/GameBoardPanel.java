@@ -102,13 +102,7 @@ public class GameBoardPanel extends JPanel {
             }
         }
     }
-    private int score = 0;
-    private int hp = 3;
-    private JLabel scoreLabel;
-    private JPanel heartPanel;
-    private JLabel[] hearts;
 
-    
 }
 
 
