@@ -7,7 +7,6 @@ public class Sudoku extends JFrame {
     private static final long serialVersionUID = 1L;
     private float volume = 1.0f;
     private GameBoardPanel board = new GameBoardPanel();
-    private JButton btnNewGame = new JButton("New Game");
     private int currentDifficulty;
 
     public Sudoku(int difficulty) {
@@ -26,9 +25,9 @@ public class Sudoku extends JFrame {
         JMenuItem newGameItem = new JMenuItem("New Game");
         JMenuItem resetGameItem = new JMenuItem("Reset Game");
         JMenuItem exitItem = new JMenuItem("Exit");
-        
+
         gameMenu.add(newGameItem);
-        gameMenu.add(resetGameItem); // Menambahkan Reset Game ke menu
+        gameMenu.add(resetGameItem);
         gameMenu.addSeparator();
         gameMenu.add(exitItem);
 
@@ -36,7 +35,6 @@ public class Sudoku extends JFrame {
         JMenu optionsMenu = new JMenu("Options");
         menuBar.add(optionsMenu);
 
-        // Volume Control Submenu
         JMenuItem volumeControl = new JMenuItem("Volume Control");
         optionsMenu.add(volumeControl);
 
@@ -46,6 +44,7 @@ public class Sudoku extends JFrame {
 
         JMenuItem aboutItem = new JMenuItem("About");
         helpMenu.add(aboutItem);
+
         // Add Action Listeners
         newGameItem.addActionListener(e -> showDifficultySelection());
         resetGameItem.addActionListener(e -> resetGame());
@@ -54,9 +53,7 @@ public class Sudoku extends JFrame {
         aboutItem.addActionListener(e -> showAboutDialog());
 
         cp.add(board, BorderLayout.CENTER);
-        cp.add(btnNewGame, BorderLayout.SOUTH);
-        
-        btnNewGame.addActionListener(e -> startNewGame(difficulty));
+
         startNewGame(difficulty);
 
         pack();
@@ -64,14 +61,15 @@ public class Sudoku extends JFrame {
         setTitle("Sudoku");
         setVisible(true);
     }
+
     private void resetGame() {
-        board.newGame(currentDifficulty); // Reset game dengan difficulty yang sama
+        board.newGame(currentDifficulty);
     }
 
     private void showAboutDialog() {
         JDialog aboutDialog = new JDialog(this, "About", true);
         aboutDialog.setLayout(new BorderLayout());
-        
+
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -85,7 +83,7 @@ public class Sudoku extends JFrame {
         teamLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        
+
         panel.add(titleLabel);
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
         panel.add(versionLabel);
@@ -104,8 +102,6 @@ public class Sudoku extends JFrame {
         aboutDialog.setLocationRelativeTo(this);
         aboutDialog.setVisible(true);
     }
-    
-    
 
     private void showDifficultySelection() {
         JDialog difficultyDialog = new JDialog(this, "Select Difficulty", true);
@@ -147,7 +143,7 @@ public class Sudoku extends JFrame {
 
         JLabel volumeLabel = new JLabel("Volume: ");
         JSlider volumeSlider = new JSlider(0, 100, (int)(volume * 100));
-        
+
         volumeSlider.addChangeListener(e -> {
             volume = volumeSlider.getValue() / 100f;
             // Implement volume control logic here
