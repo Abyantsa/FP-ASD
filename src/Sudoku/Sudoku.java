@@ -17,9 +17,14 @@ public class Sudoku extends JFrame {
     private JLabel timerLabel;
     private boolean isPaused = false; // Track if the timer is paused
     private JButton pauseResumeButton; // Button to pause/resume the timer
+    private JButton hintButton; // Button to provide hints
+    private int hintCounter = 0; // Track the number of hints used
+    private int maxHints; // Maximum number of hints allowed
 
     public Sudoku(int difficulty) {
         this.currentDifficulty = difficulty;
+        setMaxHints(difficulty); // Set the maximum hints based on difficulty
+
         Container cp = getContentPane();
         cp.setLayout(new BorderLayout());
 
@@ -77,9 +82,16 @@ public class Sudoku extends JFrame {
         pauseResumeButton = createStyledButton("Pause");
         pauseResumeButton.addActionListener(e -> togglePauseResume(pauseResumeButton));
 
-        // Inside the Sudoku constructor, after adding the timer panel
-        JButton hintButton = createStyledButton("Hint");
-        hintButton.addActionListener(e -> board.provideHint());
+        hintButton = createStyledButton("Hint (" + (maxHints - hintCounter) + " left)");
+        hintButton.addActionListener(e -> {
+            if (hintCounter < maxHints) {
+                board.provideHint();
+                hintCounter++;
+                updateHintButtonText();
+            } else {
+                JOptionPane.showMessageDialog(this, "No more hints available!");
+            }
+        });
 
         timerPanel.add(timerLabel);
         timerPanel.add(pauseResumeButton);
@@ -94,6 +106,26 @@ public class Sudoku extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Sudoku");
         setVisible(true);
+    }
+
+    private void setMaxHints(int difficulty) {
+        switch (difficulty) {
+            case SudokuConstants.EASY:
+                maxHints = 3;
+                break;
+            case SudokuConstants.MEDIUM:
+                maxHints = 5;
+                break;
+            case SudokuConstants.HARD:
+                maxHints = 7;
+                break;
+            default:
+                maxHints = 3;
+        }
+    }
+
+    private void updateHintButtonText() {
+        hintButton.setText("Hint (" + (maxHints - hintCounter) + " left)");
     }
 
     private JButton createStyledButton(String text) {
