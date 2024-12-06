@@ -1,6 +1,8 @@
 package Sudoku;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.sound.sampled.*;
 import java.io.File;
@@ -10,6 +12,11 @@ public class Sudoku extends JFrame {
     private GameBoardPanel board = new GameBoardPanel();
     private int currentDifficulty;
     private Clip backgroundClip;
+    private Timer gameTimer;
+    private int elapsedTime = 0; // in seconds
+    private JLabel timerLabel;
+    private boolean isPaused = false; // Track if the timer is paused
+    private JButton pauseResumeButton; // Button to pause/resume the timer
 
     public Sudoku(int difficulty) {
         this.currentDifficulty = difficulty;
@@ -60,6 +67,20 @@ public class Sudoku extends JFrame {
         volumeControl.addActionListener(e -> showVolumeControl());
         aboutItem.addActionListener(e -> showAboutDialog());
 
+        // Timer and Pause/Resume Button Panel
+        JPanel timerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        timerPanel.setBackground(new Color(52, 73, 94)); // Dark background for contrast
+        timerLabel = new JLabel("Time: 00:00");
+        timerLabel.setForeground(Color.WHITE); // White text for visibility
+        timerLabel.setFont(new Font("Montserrat", Font.BOLD, 16));
+
+        pauseResumeButton = createStyledButton("Pause");
+        pauseResumeButton.addActionListener(e -> togglePauseResume(pauseResumeButton));
+
+        timerPanel.add(timerLabel);
+        timerPanel.add(pauseResumeButton);
+
+        cp.add(timerPanel, BorderLayout.NORTH);
         cp.add(board, BorderLayout.CENTER);
 
         startNewGame(difficulty);
@@ -68,6 +89,70 @@ public class Sudoku extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Sudoku");
         setVisible(true);
+    }
+
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Montserrat", Font.BOLD, 14));
+        button.setForeground(Color.WHITE);
+        button.setBackground(new Color(41, 128, 185)); // Primary color
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setOpaque(true);
+        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(52, 152, 219)); // Secondary color
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(41, 128, 185)); // Primary color
+            }
+        });
+
+        return button;
+    }
+
+    private void startTimer() {
+        gameTimer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!isPaused) {
+                    elapsedTime++;
+                    int minutes = elapsedTime / 60;
+                    int seconds = elapsedTime % 60;
+                    timerLabel.setText(String.format("Time: %02d:%02d", minutes, seconds));
+                }
+            }
+        });
+        gameTimer.start();
+    }
+
+    private void stopTimer() {
+        if (gameTimer != null) {
+            gameTimer.stop();
+        }
+    }
+
+    private void pauseTimer() {
+        isPaused = true;
+    }
+
+    private void resumeTimer() {
+        isPaused = false;
+    }
+
+    private void togglePauseResume(JButton pauseResumeButton) {
+        if (isPaused) {
+            resumeTimer();
+            pauseResumeButton.setText("Pause");
+        } else {
+            pauseTimer();
+            pauseResumeButton.setText("Resume");
+        }
     }
 
     private void playBackgroundMusic(String filePath) {
@@ -95,17 +180,18 @@ public class Sudoku extends JFrame {
         volumePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JLabel volumeLabel = new JLabel("Volume: ");
-        JSlider volumeSlider = new JSlider(0, 100, (int)(VolumeManager.getInstance().getVolume() * 100));
+        volumeLabel.setFont(new Font("Montserrat", Font.BOLD, 14));
+        volumePanel.add(volumeLabel, BorderLayout.NORTH);
 
+        JSlider volumeSlider = new JSlider(0, 100, (int)(VolumeManager.getInstance().getVolume() * 100));
         volumeSlider.addChangeListener(e -> {
             float newVolume = volumeSlider.getValue() / 100f;
             VolumeManager.getInstance().setVolume(newVolume);
         });
 
-        JButton closeButton = new JButton("Close");
+        JButton closeButton = createStyledButton("Close");
         closeButton.addActionListener(e -> volumeDialog.dispose());
 
-        volumePanel.add(volumeLabel, BorderLayout.NORTH);
         volumePanel.add(volumeSlider, BorderLayout.CENTER);
         volumePanel.add(closeButton, BorderLayout.SOUTH);
 
@@ -115,7 +201,11 @@ public class Sudoku extends JFrame {
     }
 
     private void resetGame() {
+        stopTimer();
+        elapsedTime = 0;
+        timerLabel.setText("Time: 00:00");
         board.newGame(currentDifficulty);
+        startTimer();
     }
 
     private void showAboutDialog() {
@@ -142,7 +232,7 @@ public class Sudoku extends JFrame {
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
         panel.add(teamLabel);
 
-        JButton closeButton = new JButton("Close");
+        JButton closeButton = createStyledButton("Close");
         closeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         closeButton.addActionListener(e -> aboutDialog.dispose());
 
@@ -160,9 +250,9 @@ public class Sudoku extends JFrame {
         difficultyDialog.setLayout(new GridLayout(3, 1, 10, 10));
         difficultyDialog.setSize(300, 200);
 
-        JButton btnEasy = new JButton("Easy");
-        JButton btnMedium = new JButton("Medium");
-        JButton btnHard = new JButton("Hard");
+        JButton btnEasy = createStyledButton("Easy");
+        JButton btnMedium = createStyledButton("Medium");
+        JButton btnHard = createStyledButton("Hard");
 
         btnEasy.addActionListener(e -> {
             startNewGame(SudokuConstants.EASY);
@@ -186,6 +276,9 @@ public class Sudoku extends JFrame {
     }
 
     private void startNewGame(int difficulty) {
+        stopTimer();
+        elapsedTime = 0;
+        timerLabel.setText("Time: 00:00");
         int cellsToGuess;
         switch (difficulty) {
             case SudokuConstants.EASY: cellsToGuess = SudokuConstants.EASY; break;
@@ -194,10 +287,12 @@ public class Sudoku extends JFrame {
             default: cellsToGuess = SudokuConstants.EASY;
         }
         board.newGame(cellsToGuess);
+        startTimer();
     }
 
     @Override
     public void dispose() {
+        stopTimer();
         if (backgroundClip != null && backgroundClip.isRunning()) {
             backgroundClip.stop();
             backgroundClip.close();
