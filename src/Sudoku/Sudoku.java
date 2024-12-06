@@ -77,8 +77,13 @@ public class Sudoku extends JFrame {
         pauseResumeButton = createStyledButton("Pause");
         pauseResumeButton.addActionListener(e -> togglePauseResume(pauseResumeButton));
 
+        // Inside the Sudoku constructor, after adding the timer panel
+        JButton hintButton = createStyledButton("Hint");
+        hintButton.addActionListener(e -> board.provideHint());
+
         timerPanel.add(timerLabel);
         timerPanel.add(pauseResumeButton);
+        timerPanel.add(hintButton);
 
         cp.add(timerPanel, BorderLayout.NORTH);
         cp.add(board, BorderLayout.CENTER);

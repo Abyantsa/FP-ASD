@@ -67,6 +67,23 @@ public class GameBoardPanel extends JPanel {
         return true;
     }
 
+    public void provideHint() {
+        for (int row = 0; row < SudokuConstants.GRID_SIZE; ++row) {
+            for (int col = 0; col < SudokuConstants.GRID_SIZE; ++col) {
+                Cell cell = cells[row][col];
+                if (cell.status == CellStatus.TO_GUESS) {
+                    int correctNumber = puzzle.solution[row][col];
+                    cell.setText(String.valueOf(correctNumber));
+                    cell.status = CellStatus.CORRECT_GUESS;
+                    cell.setEditable(false); // Make the cell non-editable after hint
+                    cell.paint();
+                    return; // Provide only one hint at a time
+                }
+            }
+        }
+        JOptionPane.showMessageDialog(null, "No more hints available!");
+    }
+
     private class CellInputListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
