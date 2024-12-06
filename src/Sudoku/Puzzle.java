@@ -1,62 +1,141 @@
 package Sudoku;
 
-/**
- * The Sudoku number puzzle to be solved
- */
 public class Puzzle {
-    // All variables have package access
-    // The numbers on the puzzle
     int[][] numbers = new int[SudokuConstants.GRID_SIZE][SudokuConstants.GRID_SIZE];
-    // The clues - isGiven (no need to guess) or need to guess
     boolean[][] isGiven = new boolean[SudokuConstants.GRID_SIZE][SudokuConstants.GRID_SIZE];
     int[][] solution = new int[SudokuConstants.GRID_SIZE][SudokuConstants.GRID_SIZE];
-
-
-    // Constructor
-    public Puzzle() {
-        super();
-    }
-
-    // Generate a new puzzle given the number of cells to be guessed, which can be used
-    // to control the difficulty level.
-    public void newPuzzle(int cellsToGuess) {
-        int[][] hardcodedNumbers = {
-                {5, 3, 4, 6, 7, 8, 9, 1, 2},
-                {6, 7, 2, 1, 9, 5, 3, 4, 8},
-                {1, 9, 8, 3, 4, 2, 5, 6, 7},
-                {8, 5, 9, 7, 6, 1, 4, 2, 3},
-                {4, 2, 6, 8, 5, 3, 7, 9, 1},
-                {7, 1, 3, 9, 2, 4, 8, 5, 6},
-                {9, 6, 1, 5, 3, 7, 2, 8, 4},
-                {2, 8, 7, 4, 1, 9, 6, 3, 5},
-                {3, 4, 5, 2, 8, 6, 1, 7, 9}
-        };
-
-        // Copy solusi ke dalam array solution
-        for (int row = 0; row < SudokuConstants.GRID_SIZE; ++row) {
-            for (int col = 0; col < SudokuConstants.GRID_SIZE; ++col) {
-                numbers[row][col] = hardcodedNumbers[row][col];
-                solution[row][col] = hardcodedNumbers[row][col]; // Salin solusi ke solution
-                isGiven[row][col] = true;
+    
+    public void newPuzzle(int difficulty) {
+        // Generate solution first
+        generateSolution();
+        
+        // Copy solution to numbers
+        for (int i = 0; i < SudokuConstants.GRID_SIZE; i++) {
+            for (int j = 0; j < SudokuConstants.GRID_SIZE; j++) {
+                numbers[i][j] = solution[i][j];
+                isGiven[i][j] = true;
             }
         }
-
-        // Hapus angka secara acak sesuai cellsToGuess
-        int cellsToRemove = cellsToGuess;
+        
+        // Remove numbers according to difficulty
+        int cellsToRemove = difficulty;
         while (cellsToRemove > 0) {
-            int row = (int) (Math.random() * SudokuConstants.GRID_SIZE);
-            int col = (int) (Math.random() * SudokuConstants.GRID_SIZE);
-
-            if (isGiven[row][col]) {
-                numbers[row][col] = 0; // Kosongkan angka
+            int row = (int)(Math.random() * SudokuConstants.GRID_SIZE);
+            int col = (int)(Math.random() * SudokuConstants.GRID_SIZE);
+            if (numbers[row][col] != 0) {
+                numbers[row][col] = 0;
                 isGiven[row][col] = false;
                 cellsToRemove--;
             }
         }
     }
 
+    private void generateSolution() {
+        // Clear the grid
+        for (int i = 0; i < SudokuConstants.GRID_SIZE; i++) {
+            for (int j = 0; j < SudokuConstants.GRID_SIZE; j++) {
+                solution[i][j] = 0;
+            }
+        }
+        
+        // Fill diagonal 3x3 boxes first (they are independent)
+        fillDiagonalBoxes();
+        
+        // Fill remaining cells
+        fillRemaining(0, SudokuConstants.SUBGRID_SIZE);
+    }
 
+    private void fillDiagonalBoxes() {
+        for (int box = 0; box < SudokuConstants.GRID_SIZE; box += SudokuConstants.SUBGRID_SIZE) {
+            fillBox(box, box);
+        }
+    }
 
+    private void fillBox(int row, int col) {
+        int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        shuffleArray(numbers);
+        int num = 0;
+        
+        for (int i = 0; i < SudokuConstants.SUBGRID_SIZE; i++) {
+            for (int j = 0; j < SudokuConstants.SUBGRID_SIZE; j++) {
+                solution[row + i][col + j] = numbers[num++];
+            }
+        }
+    }
 
+    private void shuffleArray(int[] arr) {
+        for (int i = arr.length - 1; i > 0; i--) {
+            int j = (int)(Math.random() * (i + 1));
+            int temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+    }
 
+    private boolean fillRemaining(int row, int col) {
+        if (col >= SudokuConstants.GRID_SIZE && row < SudokuConstants.GRID_SIZE - 1) {
+            row++;
+            col = 0;
+        }
+        if (row >= SudokuConstants.GRID_SIZE && col >= SudokuConstants.GRID_SIZE) {
+            return true;
+        }
+        if (row < SudokuConstants.SUBGRID_SIZE) {
+            if (col < SudokuConstants.SUBGRID_SIZE) {
+                col = SudokuConstants.SUBGRID_SIZE;
+            }
+        } else if (row < SudokuConstants.GRID_SIZE - SudokuConstants.SUBGRID_SIZE) {
+            if (col == (int)(row / SudokuConstants.SUBGRID_SIZE) * SudokuConstants.SUBGRID_SIZE) {
+                col += SudokuConstants.SUBGRID_SIZE;
+            }
+        } else {
+            if (col == SudokuConstants.GRID_SIZE - SudokuConstants.SUBGRID_SIZE) {
+                row++;
+                col = 0;
+                if (row >= SudokuConstants.GRID_SIZE) {
+                    return true;
+                }
+            }
+        }
+
+        for (int num = 1; num <= SudokuConstants.GRID_SIZE; num++) {
+            if (isSafe(row, col, num)) {
+                solution[row][col] = num;
+                if (fillRemaining(row, col + 1)) {
+                    return true;
+                }
+                solution[row][col] = 0;
+            }
+        }
+        return false;
+    }
+
+    private boolean isSafe(int row, int col, int num) {
+        // Check row
+        for (int x = 0; x < SudokuConstants.GRID_SIZE; x++) {
+            if (solution[row][x] == num) {
+                return false;
+            }
+        }
+
+        // Check column
+        for (int x = 0; x < SudokuConstants.GRID_SIZE; x++) {
+            if (solution[x][col] == num) {
+                return false;
+            }
+        }
+
+        // Check 3x3 box
+        int startRow = row - row % SudokuConstants.SUBGRID_SIZE;
+        int startCol = col - col % SudokuConstants.SUBGRID_SIZE;
+        for (int i = 0; i < SudokuConstants.SUBGRID_SIZE; i++) {
+            for (int j = 0; j < SudokuConstants.SUBGRID_SIZE; j++) {
+                if (solution[i + startRow][j + startCol] == num) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 }
