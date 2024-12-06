@@ -9,7 +9,7 @@ import java.io.File;
 
 public class Sudoku extends JFrame {
     private static final long serialVersionUID = 1L;
-    private GameBoardPanel board = new GameBoardPanel();
+    private GameBoardPanel board;
     private int currentDifficulty;
     private Clip backgroundClip;
     private Timer gameTimer;
@@ -20,10 +20,16 @@ public class Sudoku extends JFrame {
     private JButton hintButton; // Button to provide hints
     private int hintCounter = 0; // Track the number of hints used
     private int maxHints; // Maximum number of hints allowed
+    private String playerName;
+    private int score;
+    private JLabel playerNameLabel;
+    private JLabel scoreLabel;
 
-    public Sudoku(int difficulty) {
+    public Sudoku(int difficulty, String playerName) {
         this.currentDifficulty = difficulty;
         setMaxHints(difficulty); // Set the maximum hints based on difficulty
+        this.playerName = playerName;
+        this.score = 0; // Initialize score
 
         Container cp = getContentPane();
         cp.setLayout(new BorderLayout());
@@ -97,7 +103,24 @@ public class Sudoku extends JFrame {
         timerPanel.add(pauseResumeButton);
         timerPanel.add(hintButton);
 
-        cp.add(timerPanel, BorderLayout.NORTH);
+        // Player info panel
+        JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        infoPanel.setBackground(new Color(52, 73, 94)); // Dark background for contrast
+        playerNameLabel = new JLabel("Player: " + playerName);
+        playerNameLabel.setForeground(Color.WHITE);
+        playerNameLabel.setFont(new Font("Montserrat", Font.BOLD, 16));
+
+        scoreLabel = new JLabel("Score: " + score);
+        scoreLabel.setForeground(Color.WHITE);
+        scoreLabel.setFont(new Font("Montserrat", Font.BOLD, 16));
+
+        infoPanel.add(playerNameLabel);
+        infoPanel.add(Box.createRigidArea(new Dimension(20, 0))); // Spacer
+        infoPanel.add(scoreLabel);
+
+        cp.add(infoPanel, BorderLayout.NORTH);
+        cp.add(timerPanel, BorderLayout.SOUTH);
+        board = new GameBoardPanel(this); // Pass Sudoku instance to GameBoardPanel
         cp.add(board, BorderLayout.CENTER);
 
         startNewGame(difficulty);
@@ -335,6 +358,11 @@ public class Sudoku extends JFrame {
             backgroundClip.close();
         }
         super.dispose();
+    }
+
+    public void updateScore(int points) {
+        score += points;
+        scoreLabel.setText("Score: " + score);
     }
 
     public static void main(String[] args) {

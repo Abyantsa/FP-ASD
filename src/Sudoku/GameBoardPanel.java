@@ -13,8 +13,10 @@ public class GameBoardPanel extends JPanel {
 
     private Cell[][] cells = new Cell[SudokuConstants.GRID_SIZE][SudokuConstants.GRID_SIZE];
     private Puzzle puzzle = new Puzzle();
+    private Sudoku sudoku; // Reference to the Sudoku instance
 
-    public GameBoardPanel() {
+    public GameBoardPanel(Sudoku sudoku) {
+        this.sudoku = sudoku;
         super.setLayout(new GridLayout(SudokuConstants.GRID_SIZE, SudokuConstants.GRID_SIZE));
         CellInputListener listener = new CellInputListener();
 
@@ -53,7 +55,6 @@ public class GameBoardPanel extends JPanel {
             }
         }
     }
-
 
     // Check if the puzzle is solved
     public boolean isSolved() {
@@ -107,6 +108,7 @@ public class GameBoardPanel extends JPanel {
             // Periksa apakah jawaban benar menggunakan puzzle.solution
             if (numberIn == puzzle.solution[sourceCell.row][sourceCell.col]) {
                 sourceCell.status = CellStatus.CORRECT_GUESS; // Jawaban benar
+                sudoku.updateScore(10); // Update score by 10 points for correct guess
             } else {
                 sourceCell.status = CellStatus.WRONG_GUESS; // Jawaban salah
             }
@@ -119,7 +121,4 @@ public class GameBoardPanel extends JPanel {
             }
         }
     }
-
 }
-
-

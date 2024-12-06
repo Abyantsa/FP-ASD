@@ -13,6 +13,7 @@ public class WelcomeScreen extends JFrame {
     private Color textColor = new Color(44, 62, 80);
     private Clip backgroundClip;
     private JSlider volumeSlider;
+    private JTextField playerNameField;
 
     public WelcomeScreen() {
         setTitle("Sudoku Game");
@@ -39,6 +40,7 @@ public class WelcomeScreen extends JFrame {
         };
         titlePanel.setPreferredSize(new Dimension(500, 150));
 
+
         JLabel lblWelcome = new JLabel("SUDOKU", JLabel.CENTER);
         lblWelcome.setFont(new Font("Montserrat", Font.BOLD, 48));
         lblWelcome.setForeground(Color.WHITE);
@@ -49,6 +51,24 @@ public class WelcomeScreen extends JFrame {
         menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
         menuPanel.setBackground(backgroundColor);
         menuPanel.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
+
+        // Player name input
+        JLabel nameLabel = new JLabel("Enter Your Name:");
+        nameLabel.setFont(new Font("Montserrat", Font.BOLD, 16));
+        nameLabel.setForeground(textColor);
+        nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        playerNameField = new JTextField();
+        playerNameField.setFont(new Font("Montserrat", Font.PLAIN, 16));
+        playerNameField.setMaximumSize(new Dimension(300, 40));
+        playerNameField.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+
+        menuPanel.add(nameLabel);
+        menuPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        menuPanel.add(playerNameField);
+        menuPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
 
         JButton btnPlayGame = createStyledButton("Play Game", new ImageIcon("path/to/play-icon.png"));
         JButton btnOptions = createStyledButton("Options", new ImageIcon("path/to/settings-icon.png"));
@@ -197,7 +217,12 @@ public class WelcomeScreen extends JFrame {
     }
 
     private void startGame(int difficulty) {
-        new Sudoku(difficulty);
+        String playerName = playerNameField.getText().trim();
+        if (playerName.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter your name before starting the game.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        new Sudoku(difficulty, playerName);
         dispose();
     }
 
