@@ -3,17 +3,19 @@ package Sudoku;
 import java.awt.*;
 import javax.swing.*;
 import javax.sound.sampled.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.File;
 
 public class WelcomeScreen extends JFrame {
     private static final long serialVersionUID = 1L;
-    private Color primaryColor = new Color(41, 128, 185);
-    private Color secondaryColor = new Color(52, 152, 219);
-    private Color backgroundColor = new Color(236, 240, 241);
-    private Color textColor = new Color(44, 62, 80);
+    private Color backgroundColor = new Color(128, 0, 128); // Purple background
+    private Color textColor = Color.WHITE; // White text for player name
     private Clip backgroundClip;
     private JSlider volumeSlider;
     private JTextField playerNameField;
+    private JLabel lblWelcome;
+    private Image originalImage;
 
     public WelcomeScreen() {
         setTitle("Sudoku Game");
@@ -27,24 +29,27 @@ public class WelcomeScreen extends JFrame {
         getContentPane().setBackground(backgroundColor);
         setLayout(new BorderLayout(20, 20));
 
-        // Panel for title with gradient background
-        JPanel titlePanel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                GradientPaint gradient = new GradientPaint(0, 0, primaryColor, 0, getHeight(), secondaryColor);
-                g2d.setPaint(gradient);
-                g2d.fillRect(0, 0, getWidth(), getHeight());
-            }
-        };
+        // Panel for title without gradient background
+        JPanel titlePanel = new JPanel(new BorderLayout());
         titlePanel.setPreferredSize(new Dimension(500, 150));
+        titlePanel.setOpaque(false); // Make the panel transparent
 
+        // Load your image
+        ImageIcon originalIcon = new ImageIcon("src/Sudoku/desainsudoku1.png");
+        originalImage = originalIcon.getImage();
 
-        JLabel lblWelcome = new JLabel("SUDOKU", JLabel.CENTER);
-        lblWelcome.setFont(new Font("Montserrat", Font.BOLD, 48));
-        lblWelcome.setForeground(Color.WHITE);
-        titlePanel.add(lblWelcome);
+        // Create a JLabel with the image
+        lblWelcome = new JLabel();
+        lblWelcome.setHorizontalAlignment(JLabel.CENTER);
+        titlePanel.add(lblWelcome, BorderLayout.NORTH); // Align image to the top
+
+        // Add a component listener to resize the image when the panel size changes
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                resizeImage(titlePanel.getWidth(), titlePanel.getHeight());
+            }
+        });
 
         // Main menu panel
         JPanel menuPanel = new JPanel();
@@ -54,25 +59,23 @@ public class WelcomeScreen extends JFrame {
 
         // Player name input
         JLabel nameLabel = new JLabel("Enter Your Name:");
-        nameLabel.setFont(new Font("Montserrat", Font.BOLD, 16));
-        nameLabel.setForeground(textColor);
+        nameLabel.setFont(new Font("Fredoka One", Font.BOLD, 16)); // Use Fredoka One for title
+        nameLabel.setForeground(textColor); // Set text color to white
         nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         playerNameField = new JTextField();
-        playerNameField.setFont(new Font("Montserrat", Font.PLAIN, 16));
+        playerNameField.setFont(new Font("Poppins", Font.PLAIN, 16)); // Use Poppins for input
         playerNameField.setMaximumSize(new Dimension(300, 40));
         playerNameField.setAlignmentX(Component.CENTER_ALIGNMENT);
-
 
         menuPanel.add(nameLabel);
         menuPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         menuPanel.add(playerNameField);
         menuPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-
-        JButton btnPlayGame = createStyledButton("Play Game", new ImageIcon("path/to/play-icon.png"));
-        JButton btnOptions = createStyledButton("Options", new ImageIcon("path/to/settings-icon.png"));
-        JButton btnExit = createStyledButton("Exit", new ImageIcon("path/to/exit-icon.png"));
+        JButton btnPlayGame = createStyledButton("Play Game");
+        JButton btnOptions = createStyledButton("Options");
+        JButton btnExit = createStyledButton("Exit");
 
         // Add spacing between buttons
         addButtonToPanel(menuPanel, btnPlayGame);
@@ -91,6 +94,33 @@ public class WelcomeScreen extends JFrame {
 
         setLocationRelativeTo(null);
         setVisible(true);
+    }
+
+    private void resizeImage(int panelWidth, int panelHeight) {
+        if (originalImage == null) {
+            return;
+        }
+
+        // Calculate the aspect ratio of the original image
+        double imageAspectRatio = (double) originalImage.getWidth(null) / originalImage.getHeight(null);
+        double panelAspectRatio = (double) panelWidth / panelHeight;
+
+        int newWidth, newHeight;
+
+        // Determine the scaling factor to fill the panel
+        if (panelAspectRatio > imageAspectRatio) {
+            // Panel is wider than the image
+            newWidth = panelWidth;
+            newHeight = (int) (panelWidth / imageAspectRatio);
+        } else {
+            // Panel is taller than the image
+            newHeight = panelHeight;
+            newWidth = (int) (panelHeight * imageAspectRatio);
+        }
+
+        // Scale the image
+        Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+        lblWelcome.setIcon(new ImageIcon(scaledImage));
     }
 
     private void playBackgroundMusic(String filePath) {
@@ -120,19 +150,19 @@ public class WelcomeScreen extends JFrame {
         volumePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JLabel volumeLabel = new JLabel("Volume Control");
-        volumeLabel.setFont(new Font("Montserrat", Font.BOLD, 16));
+        volumeLabel.setFont(new Font("Poppins", Font.BOLD, 16)); // Use Poppins for labels
         volumeLabel.setForeground(textColor);
 
         volumeSlider = new JSlider(0, 100, (int)(VolumeManager.getInstance().getVolume() * 100));
         volumeSlider.setBackground(backgroundColor);
-        volumeSlider.setForeground(primaryColor);
+        volumeSlider.setForeground(new Color(41, 128, 185));
 
         volumeSlider.addChangeListener(e -> {
             float newVolume = volumeSlider.getValue() / 100.0f;
             VolumeManager.getInstance().setVolume(newVolume);
         });
 
-        JButton btnClose = createStyledButton("Save", null);
+        JButton btnClose = createStyledButton("Save");
         btnClose.addActionListener(e -> optionsDialog.dispose());
 
         volumePanel.add(volumeLabel, BorderLayout.NORTH);
@@ -144,25 +174,26 @@ public class WelcomeScreen extends JFrame {
         optionsDialog.setVisible(true);
     }
 
-    private JButton createStyledButton(String text, ImageIcon icon) {
+    private JButton createStyledButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Montserrat", Font.BOLD, 18));
+        button.setFont(new Font("Open Sans", Font.BOLD, 18)); // Use Open Sans for buttons
         button.setForeground(Color.WHITE);
-        button.setBackground(primaryColor);
+        button.setBackground(new Color(41, 128, 185)); // Primary color
         button.setPreferredSize(new Dimension(300, 60));
         button.setMaximumSize(new Dimension(300, 60));
         button.setFocusPainted(false);
         button.setBorderPainted(false);
-        button.setContentAreaFilled(false);
-        button.setOpaque(true);
+        button.setContentAreaFilled(true);
 
         // Hover effect
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(secondaryColor);
+                button.setBackground(new Color(52, 152, 219)); // Secondary color
+                button.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2)); // Add border on hover
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(primaryColor);
+                button.setBackground(new Color(41, 128, 185)); // Primary color
+                button.setBorder(null); // Remove border when not hovered
             }
         });
 
@@ -188,9 +219,9 @@ public class WelcomeScreen extends JFrame {
         difficultyPanel.setBackground(backgroundColor);
         difficultyPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JButton btnEasy = createStyledButton("Easy", null);
-        JButton btnMedium = createStyledButton("Medium", null);
-        JButton btnHard = createStyledButton("Hard", null);
+        JButton btnEasy = createStyledButton("Easy");
+        JButton btnMedium = createStyledButton("Medium");
+        JButton btnHard = createStyledButton("Hard");
 
         addButtonToPanel(difficultyPanel, btnEasy);
         difficultyPanel.add(Box.createRigidArea(new Dimension(0, 15)));
