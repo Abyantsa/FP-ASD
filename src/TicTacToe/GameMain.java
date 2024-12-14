@@ -1,5 +1,9 @@
 package TicTacToe;
+
 import javax.swing.*;
+import javax.sound.sampled.*;
+import java.io.File;
+import java.io.IOException;
 
 import static TicTacToe.TicTacToe.TITLE;
 
@@ -13,8 +17,8 @@ public class GameMain {
                 JFrame frame = new JFrame(TITLE);
 
                 // Set konten jendela dengan TicTacToe (panel permainan)
-                TicTacToe gamePanel = new TicTacToe();
-                frame.setContentPane(gamePanel);
+                PageAwal pageAwal = new PageAwal(frame);
+                frame.setContentPane(pageAwal);
 
                 // Mengatur close operation untuk keluar ketika jendela ditutup
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -27,8 +31,24 @@ public class GameMain {
 
                 // Menampilkan jendela
                 frame.setVisible(true);
+
+                // Play background music
+                playBackgroundMusic("C:\\Users\\Alamsyah Mubarok\\IdeaProjects\\FP-ASD1\\src\\SoundtrackTictactoe.wav");
             }
         });
     }
-}
 
+    /** Play background music in a loop */
+    private static void playBackgroundMusic(String filePath) {
+        try {
+            File audioFile = new File(filePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.loop(Clip.LOOP_CONTINUOUSLY); // Loop the music continuously
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
+}

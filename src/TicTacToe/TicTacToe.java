@@ -18,8 +18,14 @@ public class TicTacToe extends JPanel {
     private State currentState;
     private Seed currentPlayer;
     private JLabel statusBar;
+    private AIPlayer aiPlayer;
+    private boolean vsCpu;
 
-    public TicTacToe() {
+    public TicTacToe(boolean vsCpu) {
+        this.vsCpu = vsCpu;
+        initGame();
+        newGame();
+
         super.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -33,6 +39,12 @@ public class TicTacToe extends JPanel {
                             && board.cells[row][col].content == Seed.NO_SEED) {
                         currentState = board.stepGame(currentPlayer, row, col);
                         currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
+
+                        if (vsCpu && currentPlayer == aiPlayer.mySeed && currentState == State.PLAYING) {
+                            int[] move = aiPlayer.move();
+                            currentState = board.stepGame(aiPlayer.mySeed, move[0], move[1]);
+                            currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
+                        }
                     }
                 } else {
                     newGame();
@@ -53,13 +65,14 @@ public class TicTacToe extends JPanel {
         super.add(statusBar, BorderLayout.PAGE_END);
         super.setPreferredSize(new Dimension(Board.CANVAS_WIDTH, Board.CANVAS_HEIGHT + 30));
         super.setBorder(BorderFactory.createLineBorder(COLOR_BG_STATUS, 2, false));
-
-        initGame();
-        newGame();
     }
 
     public void initGame() {
         board = new Board();
+        if (vsCpu) {
+            aiPlayer = new AIPlayerSimple(board);
+            aiPlayer.setSeed(Seed.NOUGHT); // AI plays as NOUGHT
+        }
     }
 
     public void newGame() {
@@ -76,10 +89,9 @@ public class TicTacToe extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        setBackground(COLOR_BG); // Set background color of the board
-        board.paint(g);  // Paint the game board
+        setBackground(COLOR_BG);
+        board.paint(g);
 
-        // Display the current game status (whose turn, if someone won, etc.)
         if (currentState == State.PLAYING) {
             statusBar.setForeground(Color.BLACK);
             statusBar.setText((currentPlayer == Seed.CROSS) ? "X's Turn" : "O's Turn");
@@ -94,5 +106,4 @@ public class TicTacToe extends JPanel {
             statusBar.setText("'O' Won! Click to play again.");
         }
     }
-
 }
