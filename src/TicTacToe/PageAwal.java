@@ -13,29 +13,32 @@ public class PageAwal extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
 
-        JButton playButton = createStyledButton("Play Game");
+        JButton playTicTacToeButton = createStyledButton("Play TicTacToe");
         JButton playVsCpuButton = createStyledButton("Play vs CPU");
+        JButton playOthelloButton = createStyledButton("Play Othello");
         JButton settingsButton = createStyledButton("Settings");
         JButton quitButton = createStyledButton("Quit Game");
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        add(playButton, gbc);
+        add(playTicTacToeButton, gbc);
 
         gbc.gridy = 1;
         add(playVsCpuButton, gbc);
 
         gbc.gridy = 2;
-        add(settingsButton, gbc);
+        add(playOthelloButton, gbc);
 
         gbc.gridy = 3;
+        add(settingsButton, gbc);
+
+        gbc.gridy = 4;
         add(quitButton, gbc);
 
-        playButton.addActionListener(new ActionListener() {
+        playTicTacToeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                frame.setContentPane(new TicTacToe(false)); // Human vs Human
-                frame.revalidate();
+                showTicTacToeOptions(frame);
             }
         });
 
@@ -43,6 +46,14 @@ public class PageAwal extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.setContentPane(new TicTacToe(true)); // Human vs CPU
+                frame.revalidate();
+            }
+        });
+
+        playOthelloButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setContentPane(new Othello()); // Switch to Othello
                 frame.revalidate();
             }
         });
@@ -60,6 +71,25 @@ public class PageAwal extends JPanel {
                 System.exit(0);
             }
         });
+    }
+
+    private void showTicTacToeOptions(JFrame frame) {
+        Object[] options = {"Player vs Player", "Player vs CPU"};
+        int choice = JOptionPane.showOptionDialog(frame,
+                "Choose TicTacToe Mode:",
+                "TicTacToe Options",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
+
+        if (choice == JOptionPane.YES_OPTION) {
+            frame.setContentPane(new TicTacToe(false)); // Player vs Player
+        } else if (choice == JOptionPane.NO_OPTION) {
+            frame.setContentPane(new TicTacToe(true)); // Player vs CPU
+        }
+        frame.revalidate();
     }
 
     private JButton createStyledButton(String text) {
