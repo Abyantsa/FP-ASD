@@ -14,7 +14,6 @@ public class PageAwal extends JPanel {
         gbc.insets = new Insets(10, 10, 10, 10);
 
         JButton playTicTacToeButton = createStyledButton("Play TicTacToe");
-        JButton playVsCpuButton = createStyledButton("Play vs CPU");
         JButton playOthelloButton = createStyledButton("Play Othello");
         JButton settingsButton = createStyledButton("Settings");
         JButton quitButton = createStyledButton("Quit Game");
@@ -24,29 +23,18 @@ public class PageAwal extends JPanel {
         add(playTicTacToeButton, gbc);
 
         gbc.gridy = 1;
-        add(playVsCpuButton, gbc);
-
-        gbc.gridy = 2;
         add(playOthelloButton, gbc);
 
-        gbc.gridy = 3;
+        gbc.gridy = 2;
         add(settingsButton, gbc);
 
-        gbc.gridy = 4;
+        gbc.gridy = 3;
         add(quitButton, gbc);
 
         playTicTacToeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 showTicTacToeOptions(frame);
-            }
-        });
-
-        playVsCpuButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                frame.setContentPane(new TicTacToe(true)); // Human vs CPU
-                frame.revalidate();
             }
         });
 
