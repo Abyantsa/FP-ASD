@@ -3,7 +3,7 @@ package TicTacToe;
 import java.awt.*;
 import javax.swing.*;
 
-public class Board {
+public class Board extends JPanel {
     public static final int ROWS = 3;
     public static final int COLS = 3;
     public static final int CANVAS_WIDTH = Cell.SIZE * COLS;
@@ -15,8 +15,9 @@ public class Board {
 
     Cell[][] cells;
 
-    public Board() {
+    public Board(boolean vsCPU) {
         initGame();
+        setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
     }
 
     public void initGame() {
@@ -64,7 +65,9 @@ public class Board {
         return true;
     }
 
-    public void paint(Graphics g) {
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
         g.setColor(COLOR_GRID);
         for (int row = 1; row < ROWS; ++row) {
             g.fillRoundRect(0, Cell.SIZE * row - GRID_WIDTH_HALF, CANVAS_WIDTH - 1, GRID_WIDTH, GRID_WIDTH, GRID_WIDTH);

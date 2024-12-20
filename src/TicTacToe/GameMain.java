@@ -33,7 +33,7 @@ public class GameMain {
                 frame.setVisible(true);
 
                 // Play background music
-                playBackgroundMusic("C:\\Users\\Alamsyah Mubarok\\IdeaProjects\\FP-ASD1\\src\\SoundtrackTictactoe.wav");
+                playBackgroundMusic("src\\Sounds\\SoundtrackTictactoe.wav");
             }
         });
     }

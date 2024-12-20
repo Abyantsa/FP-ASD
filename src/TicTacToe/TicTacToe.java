@@ -37,9 +37,11 @@ public class TicTacToe extends JPanel {
                 if (currentState == State.PLAYING) {
                     if (row >= 0 && row < Board.ROWS && col >= 0 && col < Board.COLS
                             && board.cells[row][col].content == Seed.NO_SEED) {
+                        // Player makes a move
                         currentState = board.stepGame(currentPlayer, row, col);
                         currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
 
+                        // If vs CPU and it's the AI's turn, make the AI move
                         if (vsCpu && currentPlayer == aiPlayer.mySeed && currentState == State.PLAYING) {
                             int[] move = aiPlayer.move();
                             currentState = board.stepGame(aiPlayer.mySeed, move[0], move[1]);
@@ -47,9 +49,9 @@ public class TicTacToe extends JPanel {
                         }
                     }
                 } else {
-                    newGame();
+                    newGame(); // Restart the game if it's over
                 }
-                repaint();
+                repaint(); // Repaint the board after each move
             }
         });
 

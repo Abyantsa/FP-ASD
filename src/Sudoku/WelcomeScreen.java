@@ -23,7 +23,7 @@ public class WelcomeScreen extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Play background music
-        playBackgroundMusic("src\\Sudoku\\backsound.wav");
+        playBackgroundMusic("src\\Sounds\\backsoundSudoku.wav");
 
         // Set background color
         getContentPane().setBackground(backgroundColor);
@@ -35,7 +35,7 @@ public class WelcomeScreen extends JFrame {
         titlePanel.setOpaque(false); // Make the panel transparent
 
         // Load your image
-        ImageIcon originalIcon = new ImageIcon("src/Sudoku/desainsudoku1.png");
+        ImageIcon originalIcon = new ImageIcon("src\\Images\\desainsudoku1.png");
         originalImage = originalIcon.getImage();
 
         // Create a JLabel with the image
