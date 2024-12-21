@@ -125,13 +125,16 @@ public class WelcomeScreen extends JFrame {
 
     private void playBackgroundMusic(String filePath) {
         try {
+            // Stop the current clip if it's already playing
+            VolumeManager.getInstance().stopMusic();
+    
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(filePath));
             backgroundClip = AudioSystem.getClip();
             backgroundClip.open(audioInputStream);
-
+    
             // Use VolumeManager to manage volume
             VolumeManager.getInstance().setCurrentClip(backgroundClip);
-
+    
             backgroundClip.loop(Clip.LOOP_CONTINUOUSLY);
             backgroundClip.start();
         } catch (Exception e) {
@@ -254,11 +257,12 @@ public class WelcomeScreen extends JFrame {
             return;
         }
         new Sudoku(difficulty, playerName);
-        dispose();
+        setVisible(false); // Hide the WelcomeScreen instead of disposing it
     }
 
     @Override
     public void dispose() {
+        // Stop the music when disposing
         if (backgroundClip != null && backgroundClip.isRunning()) {
             backgroundClip.stop();
             backgroundClip.close();
