@@ -15,7 +15,7 @@ import java.awt.*;
  */
 public class Cell {
     // Define named constants for drawing
-    public static final int SIZE = 120; // cell width/height (square)
+    public static final int SIZE = 200; // cell width/height (square)
     // Symbols (cross/nought) are displayed inside a cell, with padding from border
     public static final int PADDING = SIZE / 5;
     public static final int SEED_SIZE = SIZE - PADDING * 2;
@@ -27,7 +27,7 @@ public class Cell {
     int row, col;
 
     /** Constructor to initialize this cell with the specified row and col */
-    public Cell(int row, int col) {
+    public Cell(int row, int col, int cellSize) {
         this.row = row;
         this.col = col;
         content = Seed.NO_SEED;
