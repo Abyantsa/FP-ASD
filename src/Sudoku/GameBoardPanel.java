@@ -1,21 +1,14 @@
-/**
- * ES234317-Algorithm and Data Structures
- * Semester Ganjil, 2024/2025
- * Group Capstone Project
- * Group #2
- * 1 - 5026231024 - Rafindra Nabiel Fawwaz
- * 2 - 5026231163 - Muhammad Abyan Tsabit Amani
- * 3 - 5026231188 - Sultan Alamsyah Lintang Mubarok
- */
-
 package Sudoku;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.sound.sampled.*;
+import java.io.File;
+import java.io.IOException;
 
 public class GameBoardPanel extends JPanel {
-    private static final long serialVersionUID = 1L; // to prevent serial warning
+    private static final long serialVersionUID = 1L;
 
     public static final int CELL_SIZE = 60;
     public static final int BOARD_WIDTH = CELL_SIZE * SudokuConstants.GRID_SIZE;
@@ -23,22 +16,20 @@ public class GameBoardPanel extends JPanel {
 
     private Cell[][] cells = new Cell[SudokuConstants.GRID_SIZE][SudokuConstants.GRID_SIZE];
     private Puzzle puzzle = new Puzzle();
-    private Sudoku sudoku; // Reference to the Sudoku instance
+    private Sudoku sudoku;
 
     public GameBoardPanel(Sudoku sudoku) {
         this.sudoku = sudoku;
         super.setLayout(new GridLayout(SudokuConstants.GRID_SIZE, SudokuConstants.GRID_SIZE));
         CellInputListener listener = new CellInputListener();
 
-        // Allocate the 2D array of Cell, and added into JPanel.
         for (int row = 0; row < SudokuConstants.GRID_SIZE; ++row) {
             for (int col = 0; col < SudokuConstants.GRID_SIZE; ++col) {
                 cells[row][col] = new Cell(row, col);
-                super.add(cells[row][col]); // JPanel
+                super.add(cells[row][col]);
             }
         }
 
-        // Add listener to editable cells
         for (int row = 0; row < SudokuConstants.GRID_SIZE; ++row) {
             for (int col = 0; col < SudokuConstants.GRID_SIZE; ++col) {
                 if (cells[row][col].isEditable()) {
@@ -50,23 +41,19 @@ public class GameBoardPanel extends JPanel {
         super.setPreferredSize(new Dimension(BOARD_WIDTH, BOARD_HEIGHT));
     }
 
-    // Generate a new puzzle and reset the game board of cells based on the puzzle.
     public void newGame(int difficulty) {
-        puzzle.newPuzzle(difficulty); // Generate a new puzzle
+        puzzle.newPuzzle(difficulty);
         for (int row = 0; row < SudokuConstants.GRID_SIZE; ++row) {
             for (int col = 0; col < SudokuConstants.GRID_SIZE; ++col) {
                 if (!puzzle.isGiven[row][col]) {
-                    // Jika sel kosong (angka 0), buat editable untuk diisi oleh pemain
                     cells[row][col].newGame(0, false);
                 } else {
-                    // Jika sel diberikan (angka sudah ada), kunci dan tampilkan angka
                     cells[row][col].newGame(puzzle.numbers[row][col], true);
                 }
             }
         }
     }
 
-    // Check if the puzzle is solved
     public boolean isSolved() {
         for (int row = 0; row < SudokuConstants.GRID_SIZE; ++row) {
             for (int col = 0; col < SudokuConstants.GRID_SIZE; ++col) {
@@ -86,9 +73,9 @@ public class GameBoardPanel extends JPanel {
                     int correctNumber = puzzle.solution[row][col];
                     cell.setText(String.valueOf(correctNumber));
                     cell.status = CellStatus.CORRECT_GUESS;
-                    cell.setEditable(false); // Make the cell non-editable after hint
+                    cell.setEditable(false);
                     cell.paint();
-                    return; // Provide only one hint at a time
+                    return;
                 }
             }
         }
@@ -101,34 +88,50 @@ public class GameBoardPanel extends JPanel {
             Cell sourceCell = (Cell) e.getSource();
             int numberIn;
             try {
-                numberIn = Integer.parseInt(sourceCell.getText()); // Ambil input pemain
+                numberIn = Integer.parseInt(sourceCell.getText());
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(null, "Please enter a number between 1 and 9!");
-                sourceCell.setText(""); // Reset input jika tidak valid
+                sourceCell.setText("");
                 return;
             }
 
-            // Validasi bahwa input berada dalam rentang 1-9
             if (numberIn < 1 || numberIn > 9) {
                 JOptionPane.showMessageDialog(null, "Please enter a number between 1 and 9!");
-                sourceCell.setText(""); // Reset input jika tidak valid
+                sourceCell.setText("");
                 return;
             }
 
-            // Periksa apakah jawaban benar menggunakan puzzle.solution
             if (numberIn == puzzle.solution[sourceCell.row][sourceCell.col]) {
-                sourceCell.status = CellStatus.CORRECT_GUESS; // Jawaban benar
-                sudoku.updateScore(10); // Update score by 10 points for correct guess
+                sourceCell.status = CellStatus.CORRECT_GUESS;
+                sudoku.updateScore(10);
+                playSound("src\\Sounds\\benarsudoku.wav");
             } else {
-                sourceCell.status = CellStatus.WRONG_GUESS; // Jawaban salah
+                sourceCell.status = CellStatus.WRONG_GUESS;
+                playSound("src\\Sounds\\salahsudoku.wav");
             }
 
-            sourceCell.paint(); // Perbarui tampilan sel
+            sourceCell.paint();
 
-            // Periksa apakah teka-teki sudah selesai
             if (isSolved()) {
                 JOptionPane.showMessageDialog(null, "Congratulations! You solved the puzzle!");
             }
+        }
+    }
+
+    private void playSound(String filePath) {
+        File soundFile = new File(filePath);
+        System.out.println("Attempting to load sound from: " + soundFile.getAbsolutePath());
+        if (!soundFile.exists()) {
+            System.err.println("Sound file not found: " + filePath);
+            return;
+        }
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+            ex.printStackTrace();
         }
     }
 }

@@ -12,9 +12,9 @@
 
  import javax.swing.*;
  import java.io.File;
- 
+
  import static TicTacToe.TicTacToe.TITLE;
- 
+
  public class GameMain {
      /** The entry "main" method */
      public static void main(String[] args) {
@@ -23,27 +23,29 @@
              public void run() {
                  // Membuat jendela utama
                  JFrame frame = new JFrame(TITLE);
- 
+
                  // Set konten jendela dengan PageAwal (panel permainan)
                  PageAwal pageAwal = new PageAwal(frame);
                  frame.setContentPane(pageAwal);
- 
+
                  // Mengatur close operation untuk keluar ketika jendela ditutup
                  frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
- 
+
                  // Menentukan ukuran jendela setelah panel permainan dipasang
-                 frame.setSize(600, 600);
- 
+                 frame.setSize(817, 866);
+
                  // Menempatkan jendela di tengah layar
                  frame.setLocationRelativeTo(null);
- 
+
                  // Menampilkan jendela
                  frame.setVisible(true);
- 
+
                  // Play background music
                  pageAwal.playBackgroundMusic("src\\Sounds\\SoundtrackTictactoe.wav");
              }
          });
+
      }
- 
+
+
  }

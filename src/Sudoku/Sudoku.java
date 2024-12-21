@@ -16,6 +16,7 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.sound.sampled.*;
 import java.io.File;
+import java.io.IOException;
 
 public class Sudoku extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -44,8 +45,8 @@ public class Sudoku extends JFrame {
         Container cp = getContentPane();
         cp.setLayout(new BorderLayout());
 
-        // Play background music
-        playBackgroundMusic("src\\Sudoku\\backsound.wav");
+//        // Play background music
+//        playBackgroundMusic("src\\Sounds\\backsoundSudoku.wav");
 
         // Create Menu Bar
         JMenuBar menuBar = new JMenuBar();
@@ -226,18 +227,19 @@ public class Sudoku extends JFrame {
     }
 
     private void playBackgroundMusic(String filePath) {
+        File soundFile = new File(filePath);
+        System.out.println("Attempting to load sound from: " + soundFile.getAbsolutePath());
+        if (!soundFile.exists()) {
+            System.err.println("Sound file not found: " + filePath);
+            return;
+        }
         try {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(filePath));
-            backgroundClip = AudioSystem.getClip();
-            backgroundClip.open(audioInputStream);
-
-            // Use VolumeManager to manage volume
-            VolumeManager.getInstance().setCurrentClip(backgroundClip);
-
-            backgroundClip.loop(Clip.LOOP_CONTINUOUSLY);
-            backgroundClip.start();
-        } catch (Exception e) {
-            e.printStackTrace();
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+            ex.printStackTrace();
         }
     }
 

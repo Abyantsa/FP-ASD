@@ -56,11 +56,24 @@
          settingsButton.addActionListener(e -> showSettingsDialog(frame));
  
          quitButton.addActionListener(e -> System.exit(0));
+
+         // Add created by and version information
+         JLabel infoLabel = new JLabel("Created by Perkap team | Version 1.0 | 2024");
+         infoLabel.setFont(new Font("Arial", Font.BOLD, 14));
+         infoLabel.setForeground(Color.WHITE);
+         gbc.gridy = 4;
+         add(infoLabel, gbc);
      }
- 
+
      private JLabel createImageLabel(String imagePath) {
-         ImageIcon imageIcon = new ImageIcon(imagePath);
-         return new JLabel(imageIcon);
+         java.net.URL imgURL = getClass().getClassLoader().getResource(imagePath);
+         if (imgURL != null) {
+             ImageIcon imageIcon = new ImageIcon(imgURL);
+             return new JLabel(imageIcon);
+         } else {
+             System.err.println("Couldn't find file: " + imagePath);
+             return new JLabel("Image not found");
+         }
      }
  
      private JButton createStyledButton(String text) {
@@ -88,7 +101,7 @@
          gbc.insets = new Insets(10, 10, 10, 10);
  
          JLabel messageLabel = new JLabel("Choose TicTacToe Mode:");
-         messageLabel.setFont(new Font("Comic Sans MS", Font.BOLD, 16));
+         messageLabel.setFont(new Font("Comic Sans MS", Font.BOLD, 20));
          messageLabel.setForeground(Color.WHITE);
          gbc.gridx = 0;
          gbc.gridy = 0;

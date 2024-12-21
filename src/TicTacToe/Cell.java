@@ -15,7 +15,7 @@ import java.awt.*;
  */
 public class Cell {
     // Define named constants for drawing
-    public static final int SIZE = 200; // cell width/height (square)
+    public static final int SIZE = 250;// cell width/height (square)
     // Symbols (cross/nought) are displayed inside a cell, with padding from border
     public static final int PADDING = SIZE / 5;
     public static final int SEED_SIZE = SIZE - PADDING * 2;
@@ -40,11 +40,19 @@ public class Cell {
 
     /** Paint itself on the graphics canvas, given the Graphics context */
     public void paint(Graphics g) {
-        // Draw the Seed if it is not empty
-        int x1 = col * SIZE + PADDING;
-        int y1 = row * SIZE + PADDING;
+        int x1 = col * Board.CELL_SIZE;
+        int y1 = row * Board.CELL_SIZE;
+
         if (content == Seed.CROSS || content == Seed.NOUGHT) {
-            g.drawImage(content.getImage(), x1, y1, SEED_SIZE, SEED_SIZE, null);
+            Image img = content.getImage();
+            if (img != null) {
+                // Draw the image scaled to fit the cell
+                g.drawImage(img, x1 + 10, y1 + 10, Board.CELL_SIZE - 20, Board.CELL_SIZE - 20, null);
+            } else {
+                // Fallback to drawing text if image is not available
+                g.setFont(new Font("Arial", Font.BOLD, Board.CELL_SIZE / 2));
+                g.drawString(content.getDisplayName(), x1 + Board.CELL_SIZE / 4, y1 + 3 * Board.CELL_SIZE / 4);
+            }
         }
     }
 }

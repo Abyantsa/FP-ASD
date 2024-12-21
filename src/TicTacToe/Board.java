@@ -6,12 +6,12 @@ import javax.swing.*;
 public class Board {
     public static final int ROWS = 3;
     public static final int COLS = 3;
-    public static final int CANVAS_WIDTH = 600; // Adjusted for 600x600 canvas
-    public static final int CANVAS_HEIGHT = 600; // Adjusted for 600x600 canvas
+    public static final int CANVAS_WIDTH = 750; // Adjusted for 600x600 canvas
+    public static final int CANVAS_HEIGHT = 750; // Adjusted for 600x600 canvas
     public static final int CELL_SIZE = CANVAS_WIDTH / COLS; // Dynamically calculate cell size
     public static final int GRID_WIDTH = 8;
     public static final int GRID_WIDTH_HALF = GRID_WIDTH / 2;
-    public static final Color COLOR_GRID = Color.LIGHT_GRAY;
+    public static final Color COLOR_GRID = Color.white;
     public static final int Y_OFFSET = 1;
 
     Cell[][] cells;
@@ -30,15 +30,20 @@ public class Board {
         }
     }
 
-    public State stepGame(Seed player, int row, int col) {
-        cells[row][col] = player;
-        
-        if (hasWon(player, row, col)) {
+    public State stepGame(Seed player, int selectedRow, int selectedCol) {
+        if (cells[selectedRow][selectedCol].content != Seed.NO_SEED) {
+            return State.PLAYING; // Invalid move
+        }
+
+        cells[selectedRow][selectedCol].content = player;
+
+        if (hasWon(player, selectedRow, selectedCol)) {
             return (player == Seed.CROSS) ? State.CROSS_WON : State.NOUGHT_WON;
         } else if (isDraw()) {
             return State.DRAW;
+        } else {
+            return State.PLAYING;
         }
-        return State.PLAYING;
     }
 
     private boolean hasWon(Seed player, int row, int col) {
